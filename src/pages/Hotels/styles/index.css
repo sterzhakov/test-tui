@@ -1,0 +1,14 @@
+.hotels {
+  margin: auto auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.hotels__hotel {
+  padding: 20px;
+}
+
+
+.hotels__loader {
+  padding: 20px;
+}
