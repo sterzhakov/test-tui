@@ -6,11 +6,11 @@ html, body, #root {
   margin: auto auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
 }
 
 .hotels__hotel {
-  padding: 20px;
+  padding: 10px;
 }
 
 

@@ -5,15 +5,17 @@ import formatPrice from './helpers/formatPrice';
 import isBottom from './helpers/isBottom';
 import findRegions from './helpers/findRegions';
 import filterHotels from './helpers/filterHotels';
+import calculateRemainingHeight from './helpers/calculateRemainingHeight';
 import { HOTELS_FETCH_LIMIT, HOTELS_FETCH_URL } from './constants';
-
 
 function Hotels(props) {
   const [regions, setRegions] = useState({});
   const [selectedRegion, setSelectedRegion] = useState();
   const [hotels, setHotels] = useState([]);
   const [isHotelsLoading, setIsHotelsLoading] = useState(true);
-  const hotelsRef = useRef(null);
+  const isLastQueryRef = useRef(false);
+  const offsetRef = useRef(0);
+  const wrapperRef = useRef(null);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -21,39 +23,66 @@ function Hotels(props) {
   }, []);
 
   const handleScroll = (event) => {
-    if (!isBottom(hotelsRef.current) || !isHotelsLoading) return;
-    window.removeEventListener('scroll', handleScroll);
+    if (
+      isLastQueryRef.current || !isHotelsLoading || 
+      !isBottom(wrapperRef.current)
+    ) return;
+
     setIsHotelsLoading(true);
   };
 
-  useEffect(() => {
-    if (!isHotelsLoading) return;
-    fetchData({ 
+  const fetchMoreData = () => {
+    return fetchData({ 
       url: HOTELS_FETCH_URL, 
-      offset: hotels.length, 
+      offset: offsetRef.current, 
       limit: HOTELS_FETCH_LIMIT
     })
-      .then((nextHotels) => {
-        const nextRegions = findRegions(nextHotels);
-        setRegions({ ...regions, ...nextRegions });
-
-        setHotels([ ...hotels, ...nextHotels ]);
-        const isLastQuery = nextHotels.length !== HOTELS_FETCH_LIMIT;
-        setIsHotelsLoading(false);
-        if (!isLastQuery) {
-          window.addEventListener('scroll', handleScroll);
-        }
+    .then((requestHotels) => {
+      offsetRef.current += HOTELS_FETCH_LIMIT; 
+      const nextRegions = findRegions(requestHotels);
+      setRegions({ ...regions, ...nextRegions });
+      setHotels((hotels) => {
+        return [ ...hotels, ...requestHotels ];
       });
+      isLastQueryRef.current = requestHotels.length !== HOTELS_FETCH_LIMIT;
+      setIsHotelsLoading(false);
+
+      return {
+        isLastQuery: isLastQueryRef.current,
+      }
+    })
+    .then((props) => {
+      const { isLastQuery } = props;
+      if (
+        calculateRemainingHeight(wrapperRef.current) > 0 && 
+        !isLastQuery
+      ) {
+        setIsHotelsLoading(true);
+      }
+    })
+  }
+  
+
+  useEffect(() => {
+    if (!isHotelsLoading) return;
+    fetchMoreData();
   }, [isHotelsLoading]);
 
   const handleRegionChange = useCallback((event) => {
     setSelectedRegion(event.target.value);
-  });
+    if (isLastQueryRef.current) return;
+    setImmediate(() => {
+      if (calculateRemainingHeight(wrapperRef.current) > 0) {
+        setIsHotelsLoading(true);
+      }
+    });
+  }, [selectedRegion]);
 
   return (
-    <div className='hotels' ref={hotelsRef}>
+    <div className='hotels' ref={wrapperRef}>
       {hotels.length > 0 && (
         <select 
+          disabled={isHotelsLoading}
           name='regions' 
           value={selectedRegion} 
           onChange={handleRegionChange}

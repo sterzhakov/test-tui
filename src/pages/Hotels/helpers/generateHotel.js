@@ -2,10 +2,10 @@ import faker from 'faker';
 import randomFromRange from './randomFromRange';
 import { REGIONS } from '../constants';
 
-const generateHotel = () => {
+const generateHotel = (id) => {
   const regionIndex = randomFromRange(0, REGIONS.length - 1);
   return {
-    id: faker.random.number(),
+    id,
     name: faker.company.companyName(),
     region: REGIONS[regionIndex],
     price: parseFloat(faker.commerce.price()),

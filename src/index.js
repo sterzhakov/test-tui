@@ -1,3 +1,4 @@
+import './styles/reset.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Hotels from './pages/Hotels';
