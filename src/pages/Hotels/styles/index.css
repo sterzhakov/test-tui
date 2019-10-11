@@ -1,7 +1,12 @@
+html, body, #root {
+  height: 100%;
+}
+
 .hotels {
   margin: auto auto;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .hotels__hotel {
