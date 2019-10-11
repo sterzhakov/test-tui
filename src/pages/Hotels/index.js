@@ -1,13 +1,16 @@
 import './styles/index.css';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import fetchData from './helpers/fetchData';
 import formatPrice from './helpers/formatPrice';
 import isBottom from './helpers/isBottom';
+import findRegions from './helpers/findRegions';
+import filterHotels from './helpers/filterHotels';
+import { HOTELS_FETCH_LIMIT, HOTELS_FETCH_URL } from './constants';
 
-const HOTELS_FETCH_LIMIT = 10;
-const HOTELS_FETCH_URL = '/api/v1/hotels';
 
 function Hotels(props) {
+  const [regions, setRegions] = useState({});
+  const [selectedRegion, setSelectedRegion] = useState();
   const [hotels, setHotels] = useState([]);
   const [isHotelsLoading, setIsHotelsLoading] = useState(true);
   const hotelsRef = useRef(null);
@@ -31,6 +34,9 @@ function Hotels(props) {
       limit: HOTELS_FETCH_LIMIT
     })
       .then((nextHotels) => {
+        const nextRegions = findRegions(nextHotels);
+        setRegions({ ...regions, ...nextRegions });
+
         setHotels([ ...hotels, ...nextHotels ]);
         const isLastQuery = nextHotels.length !== HOTELS_FETCH_LIMIT;
         setIsHotelsLoading(false);
@@ -40,9 +46,29 @@ function Hotels(props) {
       });
   }, [isHotelsLoading]);
 
+  const handleRegionChange = useCallback((event) => {
+    setSelectedRegion(event.target.value);
+  });
+
   return (
     <div className='hotels' ref={hotelsRef}>
-      {hotels.map((hotel) => (
+      {hotels.length > 0 && (
+        <select 
+          name='regions' 
+          value={selectedRegion} 
+          onChange={handleRegionChange}
+        >
+          <option key='default' value=''>Select region</option>
+          {Object.keys(regions).map((region) => {
+            return (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            )
+          })}
+        </select>
+      )}
+      {filterHotels({ region: selectedRegion }, hotels).map((hotel) => (
         <div className='hotels__hotel' key={hotel.id}>
           {hotel.id}
           {' | '}
