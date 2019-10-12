@@ -4,11 +4,10 @@ import fetchData from './helpers/fetchData';
 import isBottom from './helpers/isBottom';
 import findRegions from './helpers/findRegions';
 import calculateRemainingHeight from './helpers/calculateRemainingHeight';
+import summ from './utils/summ';
 import { HOTELS_FETCH_LIMIT, HOTELS_FETCH_URL } from './constants';
 import SelectRegions from './components/SelectRegions';
 import HotelsList from './components/HotelsList';
-
-const summ = (left) => (right) => left + right;
 
 function Hotels(props) {
   const [regions, setRegions] = useState({});
@@ -46,7 +45,7 @@ function Hotels(props) {
     setOffset(summ(HOTELS_FETCH_LIMIT));
   }, [hotels, selectedRegion, isHotelsFetching, isHotelsReady]);
 
-  // Change offset when scroll intersectionCount changes
+  // Change offset when scroll intersectionCount changed
   useEffect(() => {
     if (isHotelsReady) return;
     if (intersectionCount === 0) return;
@@ -54,7 +53,7 @@ function Hotels(props) {
     setOffset(summ(HOTELS_FETCH_LIMIT));
   }, [intersectionCount, isHotelsReady]);
 
-  // Fetch api when offset changes
+  // Fetch api when offset changed
   useEffect(() => {
     if (offset < 0) return;
     console.log(`asyncFetchData | offset: ${offset}`);
