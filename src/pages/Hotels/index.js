@@ -27,7 +27,6 @@ function Hotels(props) {
 
   const handleScroll = useCallback((event) => {
     if (isHotelsFetching) return;
-    if (!selectedRegion) return;
     if (isBottom(wrapperRef.current)) {
       setIntersectionCount((intersectionCount) => intersectionCount + 1);
     };
@@ -48,7 +47,6 @@ function Hotels(props) {
   useEffect(() => {
     if (isHotelsReady) return;
     if (intersectionCount === 0) return;
-    if (isHotelsReady) return;
     setIsHotelsFetching(true);
     setOffset(increaseOffset);
   }, [intersectionCount, isHotelsReady]);
