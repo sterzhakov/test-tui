@@ -39,10 +39,11 @@ function Hotels(props) {
 
   useEffect(() => {
     if (remainingHeight === 0) return;
+    if (isHotelsFetching) return;
     if (isHotelsReady) return;
     setIsHotelsFetching(true);
     setOffset(increaseOffset);
-  }, [remainingHeight, isHotelsReady]);
+  }, [hotels, remainingHeight, isHotelsFetching, isHotelsReady]);
 
   useEffect(() => {
     if (isHotelsReady) return;
