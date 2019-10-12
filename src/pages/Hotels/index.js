@@ -30,7 +30,7 @@ function Hotels(props) {
     if (isBottom(wrapperRef.current)) {
       setIntersectionCount((intersectionCount) => intersectionCount + 1);
     };
-  }, [isHotelsFetching, selectedRegion]);
+  }, [isHotelsFetching]);
 
   useEffect(() => {
     const nextRemainingHeight = calculateRemainingHeight(wrapperRef.current);
