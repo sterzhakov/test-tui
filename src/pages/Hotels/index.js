@@ -8,7 +8,7 @@ import { HOTELS_FETCH_LIMIT, HOTELS_FETCH_URL } from './constants';
 import SelectRegions from './components/SelectRegions';
 import HotelsList from './components/HotelsList';
 
-const increaseOffset = (offset) => offset + HOTELS_FETCH_LIMIT;
+const summ = (left) => (right) => left + right;
 
 function Hotels(props) {
   const [regions, setRegions] = useState({});
@@ -18,7 +18,6 @@ function Hotels(props) {
   const [intersectionCount, setIntersectionCount] = useState(0);
   const [isHotelsReady, setIsHotelsReady] = useState(false);
   const [isHotelsFetching, setIsHotelsFetching] = useState(false);
-  const [remainingHeight, setRemainingHeight] = useState(0);
   const wrapperRef = useRef(null);
 
   const handleRegionChange = useCallback((event) => {
@@ -28,30 +27,34 @@ function Hotels(props) {
   const handleScroll = useCallback((event) => {
     if (isHotelsFetching) return;
     if (isBottom(wrapperRef.current)) {
-      setIntersectionCount((intersectionCount) => intersectionCount + 1);
+      setIntersectionCount(summ(1));
     };
   }, [isHotelsFetching]);
-
+  
   useEffect(() => {
-    const nextRemainingHeight = calculateRemainingHeight(wrapperRef.current);
-    setRemainingHeight(nextRemainingHeight);
-  }, [hotels, intersectionCount, selectedRegion]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll])
 
+  // Change offset when (root.height - root.children[].height) > 0
   useEffect(() => {
-    if (remainingHeight === 0) return;
     if (isHotelsFetching) return;
     if (isHotelsReady) return;
+    const remainingHeight = calculateRemainingHeight(wrapperRef.current);
+    if (remainingHeight === 0) return;
     setIsHotelsFetching(true);
-    setOffset(increaseOffset);
-  }, [hotels, remainingHeight, isHotelsFetching, isHotelsReady]);
+    setOffset(summ(HOTELS_FETCH_LIMIT));
+  }, [hotels, selectedRegion, isHotelsFetching, isHotelsReady]);
 
+  // Change offset when scroll intersectionCount changes
   useEffect(() => {
     if (isHotelsReady) return;
     if (intersectionCount === 0) return;
     setIsHotelsFetching(true);
-    setOffset(increaseOffset);
+    setOffset(summ(HOTELS_FETCH_LIMIT));
   }, [intersectionCount, isHotelsReady]);
 
+  // Fetch api when offset changes
   useEffect(() => {
     if (offset < 0) return;
     console.log(`asyncFetchData | offset: ${offset}`);
@@ -74,11 +77,6 @@ function Hotels(props) {
     };
     asyncFetchData();
   }, [offset]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll])
 
   return (
     <div className='hotels' ref={wrapperRef}>
