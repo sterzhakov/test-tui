@@ -16,7 +16,7 @@ const SelectRegions = memo((props) => {
       onChange={onRegionChange}
     >
       <option key='default' value=''>Select region</option>
-      {Object.keys(regions).map((region) => {
+      {regions.map((region) => {
         return (
           <option key={region} value={region}>
             {region}

@@ -83,7 +83,7 @@ function Hotels(props) {
     <div className='hotels' ref={wrapperRef}>
       {hotels.length > 0 && (
         <SelectRegions 
-          regions={regions}
+          regions={Object.keys(regions)}
           isLoading={isHotelsFetching}
           selectedRegion={selectedRegion}
           onRegionChange={handleRegionChange}
