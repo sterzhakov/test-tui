@@ -41,16 +41,9 @@ function Hotels(props) {
   useEffect(() => {
     if (remainingHeight === 0) return;
     if (isHotelsReady) return;
-    console.log('remainingHeight', remainingHeight)
     setIsHotelsFetching(true);
     setOffset(increaseOffset);
   }, [remainingHeight, isHotelsReady]);
-
-  // useEffect(() => {
-  //   if (!selectedRegion) return;
-  //   if (remainingHeight === 0) return;
-  //   setOffset(increaseOffset);
-  // }, [selectedRegion, remainingHeight]);
 
   useEffect(() => {
     if (isHotelsReady) return;
