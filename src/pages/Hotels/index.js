@@ -1,12 +1,12 @@
 import './styles/index.css';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import fetchData from './helpers/fetchData';
-import formatPrice from './helpers/formatPrice';
 import isBottom from './helpers/isBottom';
 import findRegions from './helpers/findRegions';
-import filterHotels from './helpers/filterHotels';
 import calculateRemainingHeight from './helpers/calculateRemainingHeight';
 import { HOTELS_FETCH_LIMIT, HOTELS_FETCH_URL } from './constants';
+import SelectRegions from './components/SelectRegions';
+import HotelsList from './components/HotelsList';
 
 const increaseOffset = (offset) => offset + HOTELS_FETCH_LIMIT;
 
@@ -82,32 +82,17 @@ function Hotels(props) {
   return (
     <div className='hotels' ref={wrapperRef}>
       {hotels.length > 0 && (
-        <select 
-          disabled={isHotelsFetching}
-          name='regions' 
-          value={selectedRegion} 
-          onChange={handleRegionChange}
-        >
-          <option key='default' value=''>Select region</option>
-          {Object.keys(regions).map((region) => {
-            return (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            )
-          })}
-        </select>
+        <SelectRegions 
+          regions={regions}
+          isLoading={isHotelsFetching}
+          selectedRegion={selectedRegion}
+          onRegionChange={handleRegionChange}
+        />
       )}
-      {filterHotels({ region: selectedRegion }, hotels).map((hotel) => (
-        <div className='hotels__hotel' key={hotel.id}>
-          {hotel.id}
-          {' | '}
-          {hotel.name} in {hotel.region}
-          {' by '}
-          {formatPrice(hotel.price)}
-          {' per day '}
-        </div>
-      ))}
+      <HotelsList 
+        hotels={hotels}
+        selectedRegion={selectedRegion}
+      />
       {isHotelsFetching && (
         <div className='hotels__loader'>
           Hotels loading...
